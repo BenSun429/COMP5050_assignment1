@@ -20,4 +20,12 @@ public class State {
     public State() {
         this.isAccept = false;
     }
+
+    public void addTransition(char c, State target) {
+        transitions.put(c, target);
+    }
+
+    public void addEpsilon(State target) {
+        epsilonTransitions.add(target);
+    }
 }
