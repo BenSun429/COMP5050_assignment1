@@ -1,11 +1,9 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 public class RegexEngine {
-<<<<<<< Updated upstream
-    public static void main(String[] args) {
-        String regex = "(ab)*|c+";
-        String input = "ab";
-=======
     private static Set<State> currentStates;
 
     public static void main(String[] args) throws IOException {
@@ -23,7 +21,6 @@ public class RegexEngine {
             System.exit(1);
         }
 
->>>>>>> Stashed changes
         Fragment fragment = NFABuilder.build(regex);
 
         // add accept state
@@ -36,19 +33,6 @@ public class RegexEngine {
         if(verbose) {
             printTransitionTable();
 
-<<<<<<< Updated upstream
-        Set<State> currentStates;
-        currentStates = epsilonClosure(Collections.singleton(fragment.start));
-
-        for (int i = 0; i < input.length(); i++) {
-            currentStates = calcNextEpsilonClosure(currentStates, input.charAt(i));
-        }
-
-        if (currentStates.contains(acceptState)) {
-            System.out.println("true");
-        } else {
-            System.out.println("false");
-=======
             System.out.println("ready");
 
             checkEmptyLineIsAccept(fragment);
@@ -82,7 +66,6 @@ public class RegexEngine {
                     System.out.println("false");
                 }
             }
->>>>>>> Stashed changes
         }
     }
 
@@ -137,5 +120,48 @@ public class RegexEngine {
         }
 
         currentStates = epsilonClosure(nextStates);
+    }
+
+    public static boolean checkRegexIsValid(String regex) {
+        int leftBracketCount = 0;
+        int rightBracketCount = 0;
+
+        for (char c : regex.toCharArray()) {
+            if (Character.isLetterOrDigit(c)
+                    || c == ' '
+                    || c == '('
+                    || c == ')'
+                    || c == '*'
+                    || c == '+'
+                    || c == '|') {
+            } else {
+                return false;
+            }
+
+            if (c == '(') {
+                leftBracketCount++;
+            } else if (c == ')') {
+                rightBracketCount++;
+            }
+
+        }
+
+        // Nested parentheses
+        if(leftBracketCount > 1 || rightBracketCount > 1) {
+            return false;
+        }
+        if(leftBracketCount != rightBracketCount) {
+            return false;
+        }
+        if(regex.indexOf(")") < regex.indexOf("(")) {
+            return false;
+        }
+        // Empty in parentheses, e.g. ()
+        if(regex.indexOf("(") + 1 == regex.indexOf(")")) {
+            return false;
+        }
+
+
+        return true;
     }
 }
