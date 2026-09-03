@@ -1,9 +1,29 @@
 import java.util.*;
 
 public class RegexEngine {
+<<<<<<< Updated upstream
     public static void main(String[] args) {
         String regex = "(ab)*|c+";
         String input = "ab";
+=======
+    private static Set<State> currentStates;
+
+    public static void main(String[] args) throws IOException {
+        boolean verbose = args.length > 0 && args[0].equals("-v");
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String regex = reader.readLine();
+
+        if (regex == null || regex.isEmpty()) {
+            System.out.println("Regular expressions can't be empty.");
+            System.exit(1);
+        }
+        if(!checkRegexIsValid(regex)) {
+            System.out.println("Invalid regex expression.");
+            System.exit(1);
+        }
+
+>>>>>>> Stashed changes
         Fragment fragment = NFABuilder.build(regex);
 
         // add accept state
@@ -13,8 +33,10 @@ public class RegexEngine {
             s.addEpsilon(acceptState);
         }
 
-        System.out.println("ready");
+        if(verbose) {
+            printTransitionTable();
 
+<<<<<<< Updated upstream
         Set<State> currentStates;
         currentStates = epsilonClosure(Collections.singleton(fragment.start));
 
@@ -26,7 +48,61 @@ public class RegexEngine {
             System.out.println("true");
         } else {
             System.out.println("false");
+=======
+            System.out.println("ready");
+
+            checkEmptyLineIsAccept(fragment);
+
+            String inputLine;
+            while ((inputLine = reader.readLine()) != null) {
+                if (inputLine.isEmpty()) {
+                    checkEmptyLineIsAccept(fragment);
+                } else {
+                    for (int i = 0; i < inputLine.length(); i++) {
+                        calcNextEpsilonClosure(inputLine.charAt(i));
+                        printStateIsAccept();
+                    }
+                }
+            }
+        } else {
+            System.out.println("ready");
+
+            String inputLine;
+            while ((inputLine = reader.readLine()) != null) {
+
+                currentStates = epsilonClosure(Collections.singleton(fragment.start));
+
+                for (int i = 0; i < inputLine.length(); i++) {
+                    calcNextEpsilonClosure(inputLine.charAt(i));
+                }
+
+                if (currentStates.contains(acceptState)) {
+                    System.out.println("true");
+                } else {
+                    System.out.println("false");
+                }
+            }
+>>>>>>> Stashed changes
         }
+    }
+
+    private static void printTransitionTable() {
+        System.out.println("Transition Table:xxx");
+    }
+
+    private static void checkEmptyLineIsAccept(Fragment fragment) {
+        currentStates = epsilonClosure(Collections.singleton(fragment.start));
+        printStateIsAccept();
+    }
+
+    public static void printStateIsAccept() {
+        for (State state : currentStates) {
+            if (state.isAccept) {
+                System.out.println("true");
+                return;
+            }
+        }
+        System.out.println("false");
     }
 
     /**
@@ -50,7 +126,7 @@ public class RegexEngine {
         return closure;
     }
 
-    public static Set<State> calcNextEpsilonClosure(Set<State> currentStates, char c) {
+    public static void calcNextEpsilonClosure(char c) {
         Set<State> nextStates = new HashSet<>();
 
         // Calculate the possible next states
@@ -60,6 +136,6 @@ public class RegexEngine {
             }
         }
 
-        return epsilonClosure(nextStates);
+        currentStates = epsilonClosure(nextStates);
     }
 }
