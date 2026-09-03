@@ -164,4 +164,47 @@ public class RegexEngine {
 
         return true;
     }
+
+    public static boolean checkRegexIsValid(String regex) {
+        int leftBracketCount = 0;
+        int rightBracketCount = 0;
+
+        for (char c : regex.toCharArray()) {
+            if (Character.isLetterOrDigit(c)
+                    || c == ' '
+                    || c == '('
+                    || c == ')'
+                    || c == '*'
+                    || c == '+'
+                    || c == '|') {
+            } else {
+                return false;
+            }
+
+            if (c == '(') {
+                leftBracketCount++;
+            } else if (c == ')') {
+                rightBracketCount++;
+            }
+
+        }
+
+        // Nested parentheses
+        if(leftBracketCount > 1 || rightBracketCount > 1) {
+            return false;
+        }
+        if(leftBracketCount != rightBracketCount) {
+            return false;
+        }
+        if(regex.indexOf(")") < regex.indexOf("(")) {
+            return false;
+        }
+        // Empty in parentheses, e.g. ()
+        if(regex.indexOf("(") + 1 == regex.indexOf(")")) {
+            return false;
+        }
+
+
+        return true;
+    }
 }
