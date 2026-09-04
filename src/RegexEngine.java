@@ -31,7 +31,7 @@ public class RegexEngine {
         }
 
         if(verbose) {
-            printTransitionTable();
+            printTransitionTable(fragment, acceptState);
 
             System.out.println("ready");
 
@@ -69,8 +69,67 @@ public class RegexEngine {
         }
     }
 
-    private static void printTransitionTable() {
-        System.out.println("Transition Table:xxx");
+    /**
+     * Print Transition table definition of an NFA
+     */
+    private static void printTransitionTable(Fragment fragment, State acceptState) {
+        Set<State> allStates = new TreeSet<>(Comparator.comparingInt(s -> s.id));
+        collectStates(fragment.start, allStates);
+        allStates.add(acceptState);
+
+        Set<Character> alphabet = new TreeSet<>();
+        for (State s : allStates) {
+            alphabet.addAll(s.transitions.keySet());
+        }
+
+        // header
+        System.out.printf("%-10s", "");
+        System.out.printf("%-10s", "epsilon");
+        for (char c : alphabet) {
+            System.out.printf("%-10s", c);
+        }
+        System.out.printf("%-10s", "other");
+        System.out.println();
+
+        for (State state : allStates) {
+            if (state == fragment.start) { // start state, use >
+                System.out.printf("%-10s", ">q" + state.id);
+            } else if (state == acceptState) { // accept state, use *
+                System.out.printf("%-10s", "*q" + state.id);
+            } else {
+                System.out.printf("%-10s", "q" + state.id);
+            }
+
+            // Epsilon column
+            List<Integer> epsTargetIds = new ArrayList<>();
+            for (State t : state.epsilonTransitions) epsTargetIds.add(t.id);
+            Collections.sort(epsTargetIds);
+            if (!epsTargetIds.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                for (Integer id : epsTargetIds) {
+                    sb.append("q").append(id).append(",");
+                }
+                System.out.printf("%-10s", sb.substring(0, sb.length() - 1));
+            }
+
+            // character column
+            for (char c : alphabet) {
+                State target = state.transitions.get(c);
+                if (target != null) { // has next transition state
+                    System.out.printf("%-10s", "q" + state.id);
+                } else {
+                    System.out.printf("%-10s", "");
+                }
+            }
+            System.out.println();
+        }
+    }
+
+    private static void collectStates(State current, Set<State> visited) {
+        if (visited.contains(current)) return;
+        visited.add(current);
+        for (State t : current.epsilonTransitions) collectStates(t, visited);
+        for (State t : current.transitions.values()) collectStates(t, visited);
     }
 
     private static void checkEmptyLineIsAccept(Fragment fragment) {
@@ -164,5 +223,4 @@ public class RegexEngine {
 
         return true;
     }
-
 }
