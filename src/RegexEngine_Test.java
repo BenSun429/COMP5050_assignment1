@@ -10,8 +10,9 @@ import static org.junit.Assert.*;
 
 public class RegexEngine_Test {
 
+    // 辅助方法：构建 NFA 并判断给定字符串是否完全匹配
     private boolean matches(String regex, String input) {
-        Fragment fragment = NFABuilder.build(regex);
+        Fragment fragment = new NFABuilder().build(regex);
 
         State acceptState = new State();
         acceptState.isAccept = true;
@@ -40,11 +41,13 @@ public class RegexEngine_Test {
         assertFalse(RegexEngine.checkRegexIsValid(""));
         assertFalse(RegexEngine.checkRegexIsValid("[a-z]*"));
         assertFalse(RegexEngine.checkRegexIsValid("\n*"));
+        assertFalse(RegexEngine.checkRegexIsValid("\ta"));
         assertFalse(RegexEngine.checkRegexIsValid("(ab*"));
         assertFalse(RegexEngine.checkRegexIsValid("ab)*"));
         assertTrue(RegexEngine.checkRegexIsValid("ab*|"));
         assertTrue(RegexEngine.checkRegexIsValid("|ab"));
         assertFalse(RegexEngine.checkRegexIsValid("()"));
+        assertFalse(RegexEngine.checkRegexIsValid(")("));
         assertFalse(RegexEngine.checkRegexIsValid("((ab)*)+"));
         assertFalse(RegexEngine.checkRegexIsValid("((ab)*)+"));
         assertFalse(RegexEngine.checkRegexIsValid("a**"));
@@ -59,9 +62,16 @@ public class RegexEngine_Test {
         assertEquals(RegexEngine.match(false, reader), 0);
         reader.close();
 
-        BufferedReader reader1 = new BufferedReader(new StringReader("(ab)*|c+\na\nb\nc\nc"));
-        assertEquals(RegexEngine.match(false, reader1), 0);
+        BufferedReader reader1 = new BufferedReader(new StringReader("ab)*|c+\nabc\nccc"));
+        assertEquals(RegexEngine.match(false, reader1), 1);
         reader1.close();
+    }
+
+    @Test
+    public void testVerboseModeMatch() throws IOException {
+        BufferedReader reader = new BufferedReader(new StringReader("(ab)*|c+\na\nb\nc\n\nc"));
+        assertEquals(RegexEngine.match(true, reader), 0);
+        reader.close();
     }
 
     @Test
@@ -77,8 +87,15 @@ public class RegexEngine_Test {
     public void testBasicCharacters() {
         assertTrue(matches("a", "a"));
         assertFalse(matches("a", "b"));
+        assertFalse(matches("a", "\ta"));
+        assertFalse(matches("a", "a\t"));
+
         assertTrue(matches("abc", "abc"));
         assertFalse(matches("abc", "ab"));
+        assertFalse(matches("a c", "ac"));
+        assertFalse(matches("a c", "a "));
+        assertTrue(matches("a c", "a c"));
+        assertFalse(matches("a c", "a c "));
     }
 
     @Test

@@ -8,13 +8,15 @@ public class RegexEngine {
 
     public static void main(String[] args) throws IOException {
         boolean verbose = args.length > 0 && args[0].equals("-v");
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-
-        int exitCode = match(verbose, reader);
-        System.exit(exitCode);
+        System.exit(match(verbose, new BufferedReader(new InputStreamReader(System.in))));
     }
 
+    /**
+     * Match function
+     * @param verbose true-verbose mode, false-normal mode
+     * @return exit code
+     * @throws IOException
+     */
     public static int match(boolean verbose, BufferedReader reader) throws IOException {
         String regex = reader.readLine();
 
@@ -23,7 +25,7 @@ public class RegexEngine {
             return 1;
         }
 
-        Fragment fragment = NFABuilder.build(regex);
+        Fragment fragment = new NFABuilder().build(regex);
 
         // add accept state
         State acceptState = new State();

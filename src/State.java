@@ -19,7 +19,7 @@ public class State {
 
     public State() {
         this.isAccept = false;
-        this.id = IdGenerator.getId();
+        this.id = new IdGenerator().getId();
     }
 
     public void addTransition(char c, State target) {

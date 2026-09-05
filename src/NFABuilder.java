@@ -4,13 +4,17 @@ import java.util.Deque;
 import java.util.List;
 
 public class NFABuilder {
+    private boolean isLetterOrDigitOrSpace (char c) {
+        return Character.isLetterOrDigit(c) || c == ' ';
+    }
+
     /**
      * Thompson Algorithm
      *
      * @param regex regular expression, e.g. "(ab)*|c+"
      * @return NFA Fragment
      */
-    public static Fragment build(String regex) {
+    public Fragment build(String regex) {
         String regexWithConcat = insertConcatenation(regex);
 
         List<String> postfix = convertToPostfix(regexWithConcat);
@@ -26,7 +30,7 @@ public class NFABuilder {
      * @param regex regular expression, e.g. "ab"
      * @return regular expression with concatenation symbol, e.g. "a.b"
      */
-    private static String insertConcatenation(String regex) {
+    private String insertConcatenation(String regex) {
         String result = "";
         for (int i = 0; i < regex.length(); i++) {
             char c = regex.charAt(i);
@@ -42,26 +46,28 @@ public class NFABuilder {
         return result;
     }
 
-    private static boolean needConcat(char c, char next) {
-        boolean currentSymbol = Character.isLetterOrDigit(c) || c == ')' || c == '*' || c == '+';
-        boolean nextSymbol = Character.isLetterOrDigit(next) || next == '(';
+    private boolean needConcat(char c, char next) {
+        boolean currentSymbol = isLetterOrDigitOrSpace(c) || c == ')' || c == '*' || c == '+';
+        boolean nextSymbol = isLetterOrDigitOrSpace(next) || next == '(';
         return currentSymbol && nextSymbol;
     }
 
     /**
      * Conversion of infix expressions to postfix expressions
      *
+     * How to convert infix expressions into suffix expressions using AI search
+     *
      * @param regex regular expression, e.g. "(a.b)*|c+"
      * @return ab.*c+|
      */
-    private static List<String> convertToPostfix(String regex) {
+    private List<String> convertToPostfix(String regex) {
         List<String> postfixExpressionList = new ArrayList<>();
         Deque<Character> operators = new ArrayDeque<>(); // .*+|
 
         for (int i = 0; i < regex.length(); i++) {
             char c = regex.charAt(i);
 
-            if (Character.isLetterOrDigit(c)) {
+            if (isLetterOrDigitOrSpace(c)) {
                 postfixExpressionList.add(String.valueOf(c));
             } else if (c == '(') {
                 operators.push(c);
@@ -93,15 +99,13 @@ public class NFABuilder {
         return postfixExpressionList;
     }
 
-    private static int calcPrecedence(char op) {
+    private int calcPrecedence(char op) {
         if (op == '*' || op == '+') {
             return 3;
         } else if (op == '.') {
             return 2;
-        } else if (op == '|') {
+        } else { // when op == |
             return 1;
-        } else {
-            return 0;
         }
     }
 
@@ -110,7 +114,7 @@ public class NFABuilder {
      * @param postfix postfix expression, e.g. ab.*c+|
      * @return NFA fragment
      */
-    private static Fragment buildNFAFromPostfix(List<String> postfix) {
+    private Fragment buildNFAFromPostfix(List<String> postfix) {
         Deque<Fragment> stack = new ArrayDeque<>();
         for (String token : postfix) {
             if (token.equals("|")) { // f1|f2
@@ -185,17 +189,5 @@ public class NFABuilder {
         }
 
         return stack.pop();
-    }
-
-    public static void main(String[] args) {
-        System.out.println(insertConcatenation("ab"));
-        System.out.println(insertConcatenation("abc"));
-        System.out.println(insertConcatenation("(ab)c"));
-        System.out.println(insertConcatenation("a*c"));
-
-        System.out.println(convertToPostfix("(a.b)*|c+"));
-
-        Fragment nfa = build("(a.b)*|c+");
-        System.out.println();
     }
 }
