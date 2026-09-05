@@ -74,6 +74,14 @@ public class NFABuilder {
                 while (!operators.isEmpty() && operators.peek() != '(' && calcPrecedence(operators.peek()) >= calcPrecedence(c)) {
                     postfixExpressionList.add(String.valueOf(operators.pop()));
                 }
+
+                // when | is start or end character
+                if(c == '|') {
+                    if(i == 0 || i == regex.length() - 1) {
+                        postfixExpressionList.add("");
+                    }
+                }
+
                 operators.push(c);
             }
         }
@@ -154,6 +162,13 @@ public class NFABuilder {
                     dangling.add(ds);    // link to new dangling states
                 }
 
+                stack.push(new Fragment(state, dangling));
+            } else if(token.isEmpty()) { // ->ε->end
+                State state = new State();
+                State end = new State();
+                state.addEpsilon(end);
+                List<State> dangling = new ArrayList<>();
+                dangling.add(end);
                 stack.push(new Fragment(state, dangling));
             } else { // ->c->end
                 char c = token.charAt(0); // convert to char

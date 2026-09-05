@@ -10,15 +10,17 @@ public class RegexEngine {
         boolean verbose = args.length > 0 && args[0].equals("-v");
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+        int exitCode = match(verbose, reader);
+        System.exit(exitCode);
+    }
+
+    public static int match(boolean verbose, BufferedReader reader) throws IOException {
         String regex = reader.readLine();
 
-        if (regex == null || regex.isEmpty()) {
-            System.out.println("Regular expressions can't be empty.");
-            System.exit(1);
-        }
         if(!checkRegexIsValid(regex)) {
             System.out.println("Invalid regex expression.");
-            System.exit(1);
+            return 1;
         }
 
         Fragment fragment = NFABuilder.build(regex);
@@ -67,6 +69,8 @@ public class RegexEngine {
                 }
             }
         }
+
+        return 0;
     }
 
     /**
@@ -182,9 +186,14 @@ public class RegexEngine {
     }
 
     public static boolean checkRegexIsValid(String regex) {
+        if(regex == null || regex.isEmpty()) {
+            return false;
+        }
+
         int leftBracketCount = 0;
         int rightBracketCount = 0;
 
+        char lastChar = ' ';
         for (char c : regex.toCharArray()) {
             if (Character.isLetterOrDigit(c)
                     || c == ' '
@@ -203,6 +212,11 @@ public class RegexEngine {
                 rightBracketCount++;
             }
 
+            if(c == '*' && lastChar == '*') {
+                return false;
+            }
+
+            lastChar = c;
         }
 
         // Nested parentheses
@@ -217,6 +231,10 @@ public class RegexEngine {
         }
         // Empty in parentheses, e.g. ()
         if(regex.indexOf("(") + 1 == regex.indexOf(")")) {
+            return false;
+        }
+
+        if(regex.startsWith("*") || regex.startsWith("+")) {
             return false;
         }
 
