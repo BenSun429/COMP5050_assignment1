@@ -48,3 +48,16 @@ The program first prints `ready`, then prints `true` or `false` for each input s
 Verbose mode first prints the NFA transition table, then prints whether the current state is accepting while each input character is processed.
 
 If the regular expression is invalid, the program prints `Invalid regex expression.` and returns exit code `1`. A successful execution returns exit code `0`.
+
+## AI Usage Declaration
+
+AI model: Qwen 3.8 Max
+
+AI was used for the following purposes:
+
+- Understanding the Java data structures required for ε-NFA implementation.
+- Understanding the Thompson Algorithm for generating ε-NFAs.
+- Understanding prefix-to-postfix expression conversion.
+- Understanding how to build NFA fragments from postfix expressions.
+- Generating examples of invalid regular expressions for testing.
+- Assisting with writing unit tests and locating issues when tests failed.
